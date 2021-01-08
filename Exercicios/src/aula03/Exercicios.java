@@ -7,7 +7,26 @@ public class Exercicios {
 	public static void main(String[] args) {
 		//ordemCrescente();
 		//valorAbsoluto();
-		sinalDoNumero();
+		//sinalDoNumero();
+		numerosMultiplos();
+	}
+	
+	/*
+	 * Leia 2 numeros e irforme se são multiplos
+	 */
+	
+	public static void numerosMultiplos() {
+		String num1 = JOptionPane.showInputDialog("Digite o primeiro número:");
+		String num2 =JOptionPane.showInputDialog("Digite o segundo número ");
+		int n1 = Integer.parseInt(num1);
+		int n2 = Integer.parseInt(num2);
+		
+		if (n1 % n2 == 0) {
+			JOptionPane.showMessageDialog(null, "O número " + n1 + " é multiplo de " + n2);
+		} else {
+			JOptionPane.showMessageDialog(null, "O número " + n1 + " não é multiplo de " + n2);
+		}
+		
 	}
 	
 	/*

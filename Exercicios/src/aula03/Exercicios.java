@@ -8,11 +8,60 @@ public class Exercicios {
 		// ordemCrescente();
 		// valorAbsoluto();
 		// sinalDoNumero();
-		numerosMultiplos();
+		// numerosMultiplos();
+		// diferenca();
+		meses();
 	}
 
 	/*
-	 * Leia 2 numeros e irforme se são multiplos
+	 * Ler um numero entre 1 e 12 e imprimir o mês correspondente
+	 */
+
+	public static void meses() {
+		String num = JOptionPane.showInputDialog("Digite um número de 1 a 12:");
+		int mes = Integer.parseInt(num);
+		
+		switch(mes) {
+		case 1:  JOptionPane.showMessageDialog(null, "Janeiro");   break;
+		case 2:  JOptionPane.showMessageDialog(null, "Fevereiro"); break;
+		case 3:  JOptionPane.showMessageDialog(null, "Março");     break;
+		case 4:  JOptionPane.showMessageDialog(null, "Abril");     break;
+		case 5:  JOptionPane.showMessageDialog(null, "Maio");      break;
+		case 6:  JOptionPane.showMessageDialog(null, "Junho");     break;
+		case 7:  JOptionPane.showMessageDialog(null, "Julho");     break;
+		case 8:  JOptionPane.showMessageDialog(null, "Agosto");    break;
+		case 9:  JOptionPane.showMessageDialog(null, "Setembro");  break;
+		case 10: JOptionPane.showMessageDialog(null, "Outubro");   break;
+		case 11: JOptionPane.showMessageDialog(null, "Novembro");  break;
+		case 12: JOptionPane.showMessageDialog(null, "Dezembro");  break;
+		default: JOptionPane.showMessageDialog(null, "Número inválido!");
+		meses();
+		
+		
+		}
+	}
+
+	/*
+	 * Ler 2 numeros e informar a diferença entre eles
+	 */
+	public static void diferenca() {
+		String num1 = JOptionPane.showInputDialog("Digite o primeiro número:");
+		String num2 = JOptionPane.showInputDialog("Digite o segundo número:");
+		int n1 = Integer.parseInt(num1);
+		int n2 = Integer.parseInt(num2);
+		int diferenca;
+		if (n1 > n2) {
+			diferenca = n1 - n2;
+			JOptionPane.showMessageDialog(null, "A diferença é " + diferenca);
+		} else {
+			diferenca = n2 - n1;
+			JOptionPane.showMessageDialog(null, "A diferença é " + diferenca);
+
+		}
+	}
+
+	/*
+	 * Leia 2 numeros e informe se são multiplos
 	 */
 
 	public static void numerosMultiplos() {

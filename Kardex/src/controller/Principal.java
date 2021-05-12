@@ -1,8 +1,6 @@
 package controller;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -12,6 +10,8 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 
 import dao.ConnectionFactory;
+import dao.DAO;
+import dao.EntradasDAO;
 import model.Cliente;
 import model.Entrada;
 import model.Fornecedor;
@@ -21,16 +21,14 @@ import view.Tela;
 
 public class Principal {
 
-	// public static ArrayList<Produto> produtos;
-	public static final String ARQUIVO_PRODUTOS = "D:\\git\\JavaProgrammer\\Kardex\\db\\Produtos.csv";
+	//public static final String ARQUIVO_PRODUTOS = "D:\\git\\JavaProgrammer\\Kardex\\db\\Produtos.csv";
 
 	public static void main(String[] args) {
 
 		//testaConexao();
-
-		seedProduto();
-		//seedFornecedor();
-		ArrayList<Cliente> clientes = seedCliente();
+		//ArrayList<Cliente> clientes = seedCliente();
+		//seedEntrada();	
+		//testeEntradaDAOSelect();
 
 		Tela frame = new Tela();
 		frame.setVisible(true);
@@ -47,6 +45,15 @@ public class Principal {
 		 * 
 		 */
 
+	}
+
+	private static void testeEntradaDAOSelect() {
+		EntradasDAO dao = new EntradasDAO();
+		for (Entrada e: dao.select()) {
+			System.out.println(e);
+		}
+			
+		
 	}
 
 	public static void testaConexao() {
@@ -69,13 +76,16 @@ public class Principal {
 		return s;
 	}
 
-	public static Entrada seedEntrada(Produto p, Fornecedor f) {
-		int id = 1;
+	public static Entrada seedEntrada() {
+		Produto p = new Produto(17, "nomexxxxx", "loc", 10,1,8);
+		Fornecedor f = new Fornecedor(65,"31.950.846/0001-16", "nomezzzzz", "(11) 1234-4567", "email.com");
+		
+		//int id = 1;
 		Date data = new Date("01/20/2021");
 		String doc = "NF 999";
 		int qtde = 20;
 		double valor = 350.00;
-		Entrada e = new Entrada(id, p, f, data, doc, qtde, valor);
+		Entrada e = new Entrada( p, f, data, doc, qtde, valor);
 		return e;
 	}
 
@@ -95,7 +105,7 @@ public class Principal {
 		new Fornecedor(3, "07.720.304/0001-72", "Samsung Inc.", "1199999999", "sales@samsung.com");
 	}
 
-	public static void seedProduto() {
+	/*public static void seedProduto() {
 
 		try {
 			FileReader fr = new FileReader(ARQUIVO_PRODUTOS);
@@ -113,7 +123,7 @@ public class Principal {
 					int qtdeMinima = Integer.parseInt(campos[4]);
 					int qtdeEstoque = Integer.parseInt(campos[5]);
 
-					new Produto(id, nome, localizacao, qtdeMaxima, qtdeMinima, qtdeEstoque);
+					new Produto(nome, localizacao, qtdeMaxima, qtdeMinima, qtdeEstoque);
 
 				}
 
@@ -125,7 +135,7 @@ public class Principal {
 			e.printStackTrace();
 		}
 
-	}
+	}*/
 
 	public static ArrayList<Produto> seedProdutoManual() {
 		ArrayList<Produto> lista = new ArrayList<>();

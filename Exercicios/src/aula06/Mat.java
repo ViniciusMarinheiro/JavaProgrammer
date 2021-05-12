@@ -94,14 +94,12 @@ public class Mat {
 
 		double total = 1;
 		if (e < 0) {
-			e = e * 1;
-			b = 1 / b;
+			e = e * -1;
+			b = 1/b;
 		}
-
-		for (int cont = 1; cont <= e; cont++) {
-			total = total * e;
+		for (int cont=1 ; cont<=e ; cont++) {
+			total = total * b;
 		}
-
 		return total;
 
 	}

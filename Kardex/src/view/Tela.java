@@ -7,9 +7,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -17,11 +18,15 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -29,11 +34,17 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
-import controller.Principal;
+import model.Cliente;
+import model.Entrada;
 import model.Fornecedor;
 import model.Produto;
+import model.Saida;
 import util.Configura;
+import util.Converte;
+import util.Mascara;
 
 public class Tela extends JFrame {
 
@@ -82,13 +93,39 @@ public class Tela extends JFrame {
 	private JLabel lbFornecedorID;
 	private JTextField tfFornecedorID;
 	private JLabel lbFornecedorCNPJ;
-	private JTextField tfFornecedorCNPJ;
+	private JFormattedTextField tfFornecedorCNPJ;
 	private JLabel lbFornecedorNome;
 	private JTextField tfFornecedorNome;
 	private JLabel lbFornecedorTelefone;
-	private JTextField tfFornecedorTelefone;
+	private JFormattedTextField tfFornecedorTelefone;
 	private JLabel lbFornecedorEmail;
 	private JTextField tfFornecedorEmail;
+	private JPanel pnEntradas;
+	private JPanel pnEntradasTitulo;
+	private JLabel lbEntradas;
+	private JScrollPane scEntradas;
+	private JTable tbEntradas;
+	private JPanel pnSaidas;
+	private JPanel pnKardex;
+	private JLabel lbIncluir;
+	private JLabel lbClientesCPF;
+	private JLabel lbClientesNome;
+	private JLabel lbClientesCelular;
+	private JLabel lbClientesEmail;
+	private JFormattedTextField tfClientesCPF;
+	private JTextField tfClientesNome;
+	private JFormattedTextField tfClientesCelular;
+	private JTextField tfClientesEmail;
+	private JPanel pnSaidaTitulo;
+	private JLabel lbSaidaTitulo;
+	private JScrollPane scSaidas;
+	private JTable tbSaidas;
+	private JPanel pnKardexTitulo;
+	private JLabel lbKardexTitulo;
+	private JScrollPane pnKardexTabela;
+	private JTable tbKardex;
+	private JLabel lbAlterar;
+	private JLabel lbExcluir;
 
 	/**
 	 * Create the frame.
@@ -171,13 +208,23 @@ public class Tela extends JFrame {
 		pnMenu.add(btFornecedores);
 
 		btEntradas = new JButton("Entradas");
+		btEntradas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setPainel(Paineis.ENTRADAS);
+			}
+		});
 		btEntradas.setForeground(Color.WHITE);
 		btEntradas.setContentAreaFilled(false);
 		btEntradas.setBorderPainted(false);
 		btEntradas.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 		pnMenu.add(btEntradas);
 
-		btSaidas = new JButton("Sa\u00EDdas");
+		btSaidas = new JButton("Saídas");
+		btSaidas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setPainel(Paineis.SAIDAS);
+			}
+		});
 		btSaidas.setForeground(Color.WHITE);
 		btSaidas.setContentAreaFilled(false);
 		btSaidas.setBorderPainted(false);
@@ -248,6 +295,20 @@ public class Tela extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (painel == Paineis.PRODUTOS) gravaProduto();
 				else if (painel == Paineis.FORNECEDORES) gravaFornecedor();
+				else if (painel == Paineis.CLIENTES) gravaClientes();
+				else if (painel == Paineis.ENTRADAS);
+				else if (painel == Paineis.SAIDAS);
+				else if (painel == Paineis.MOVIMENTACAO);
+			}
+
+			private void gravaMovimentacao() {
+				// TODO Auto-generated method stub
+				
+			}
+
+			private void gravaSaida() {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 		btGravar.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -267,6 +328,7 @@ public class Tela extends JFrame {
 		lbProdutoID = new JLabel("C\u00F3digo:");
 
 		tfProdutoID = new JTextField();
+		tfProdutoID.setEnabled(false);
 		tfProdutoID.setColumns(10);
 
 		lbProdutoNome = new JLabel("Nome:");
@@ -372,12 +434,77 @@ public class Tela extends JFrame {
 
 		lbClientes = new JLabel("Clientes");
 		lbClientes.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		
+		lbClientesCPF = new JLabel("CPF:");
+		
+		lbClientesNome = new JLabel("Nome:");
+		
+		lbClientesCelular = new JLabel("Celular:");
+		
+		lbClientesEmail = new JLabel("Email:");
+		
+		tfClientesCPF = new JFormattedTextField(Mascara.cpf());
+		tfClientesCPF.setColumns(10);
+		
+		tfClientesNome = new JTextField();
+		tfClientesNome.setColumns(10);
+		
+		tfClientesCelular = new JFormattedTextField(Mascara.celular());
+		tfClientesCelular.setColumns(10);
+		
+		tfClientesEmail = new JTextField();
+		tfClientesEmail.setColumns(10);
 		GroupLayout gl_pnClientes = new GroupLayout(pnClientes);
-		gl_pnClientes.setHorizontalGroup(gl_pnClientes.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_pnClientes.createSequentialGroup()
-						.addContainerGap(242, Short.MAX_VALUE).addComponent(lbClientes).addGap(221)));
-		gl_pnClientes.setVerticalGroup(gl_pnClientes.createParallelGroup(Alignment.LEADING).addGroup(gl_pnClientes
-				.createSequentialGroup().addGap(24).addComponent(lbClientes).addContainerGap(303, Short.MAX_VALUE)));
+		gl_pnClientes.setHorizontalGroup(
+			gl_pnClientes.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_pnClientes.createSequentialGroup()
+					.addContainerGap(240, Short.MAX_VALUE)
+					.addComponent(lbClientes)
+					.addGap(221))
+				.addGroup(Alignment.LEADING, gl_pnClientes.createSequentialGroup()
+					.addGap(69)
+					.addGroup(gl_pnClientes.createParallelGroup(Alignment.LEADING, false)
+						.addGroup(gl_pnClientes.createSequentialGroup()
+							.addComponent(lbClientesCPF, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(tfClientesCPF, GroupLayout.PREFERRED_SIZE, 161, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_pnClientes.createSequentialGroup()
+							.addComponent(lbClientesNome, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(tfClientesNome, GroupLayout.PREFERRED_SIZE, 344, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_pnClientes.createSequentialGroup()
+							.addComponent(lbClientesCelular, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(tfClientesCelular, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_pnClientes.createSequentialGroup()
+							.addComponent(lbClientesEmail, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(tfClientesEmail)))
+					.addContainerGap(62, Short.MAX_VALUE))
+		);
+		gl_pnClientes.setVerticalGroup(
+			gl_pnClientes.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_pnClientes.createSequentialGroup()
+					.addGap(24)
+					.addComponent(lbClientes)
+					.addGap(54)
+					.addGroup(gl_pnClientes.createParallelGroup(Alignment.TRAILING)
+						.addComponent(lbClientesCPF)
+						.addComponent(tfClientesCPF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(30)
+					.addGroup(gl_pnClientes.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lbClientesNome)
+						.addComponent(tfClientesNome, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(26)
+					.addGroup(gl_pnClientes.createParallelGroup(Alignment.TRAILING)
+						.addComponent(lbClientesCelular)
+						.addComponent(tfClientesCelular, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(30)
+					.addGroup(gl_pnClientes.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lbClientesEmail)
+						.addComponent(tfClientesEmail, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(101, Short.MAX_VALUE))
+		);
 		pnClientes.setLayout(gl_pnClientes);
 
 		pnFornecedores = new JPanel();
@@ -390,11 +517,13 @@ public class Tela extends JFrame {
 		lbFornecedorID = new JLabel("C\u00F3digo:");
 		
 		tfFornecedorID = new JTextField();
+		tfFornecedorID.setText("Preenchimento Autom\u00E1tico");
+		tfFornecedorID.setEnabled(false);
 		tfFornecedorID.setColumns(10);
 		
 		lbFornecedorCNPJ = new JLabel("CNPJ:");
 		
-		tfFornecedorCNPJ = new JTextField();
+		tfFornecedorCNPJ = new JFormattedTextField(Mascara.cnpj());
 		tfFornecedorCNPJ.setColumns(10);
 		
 		lbFornecedorNome = new JLabel("Nome:");
@@ -404,7 +533,7 @@ public class Tela extends JFrame {
 		
 		lbFornecedorTelefone = new JLabel("Telefone:");
 		
-		tfFornecedorTelefone = new JTextField();
+		tfFornecedorTelefone = new JFormattedTextField(Mascara.telefone());
 		tfFornecedorTelefone.setColumns(10);
 		
 		lbFornecedorEmail = new JLabel("Email:");
@@ -415,12 +544,12 @@ public class Tela extends JFrame {
 		gl_pnFornecedores.setHorizontalGroup(
 			gl_pnFornecedores.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_pnFornecedores.createSequentialGroup()
-					.addContainerGap(49, Short.MAX_VALUE)
-					.addGroup(gl_pnFornecedores.createParallelGroup(Alignment.LEADING)
-						.addGroup(Alignment.TRAILING, gl_pnFornecedores.createSequentialGroup()
+					.addContainerGap(54, Short.MAX_VALUE)
+					.addGroup(gl_pnFornecedores.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_pnFornecedores.createSequentialGroup()
 							.addComponent(lbFornecedores)
 							.addGap(152))
-						.addGroup(Alignment.TRAILING, gl_pnFornecedores.createSequentialGroup()
+						.addGroup(gl_pnFornecedores.createSequentialGroup()
 							.addGroup(gl_pnFornecedores.createParallelGroup(Alignment.TRAILING)
 								.addComponent(lbFornecedorEmail)
 								.addComponent(lbFornecedorTelefone)
@@ -430,10 +559,10 @@ public class Tela extends JFrame {
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addGroup(gl_pnFornecedores.createParallelGroup(Alignment.LEADING, false)
 								.addComponent(tfFornecedorEmail)
-								.addComponent(tfFornecedorID, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(tfFornecedorCNPJ, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
 								.addComponent(tfFornecedorNome, GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
-								.addComponent(tfFornecedorTelefone, GroupLayout.PREFERRED_SIZE, 171, GroupLayout.PREFERRED_SIZE))
+								.addComponent(tfFornecedorTelefone, GroupLayout.PREFERRED_SIZE, 79, GroupLayout.PREFERRED_SIZE)
+								.addComponent(tfFornecedorCNPJ, GroupLayout.PREFERRED_SIZE, 112, GroupLayout.PREFERRED_SIZE)
+								.addComponent(tfFornecedorID, GroupLayout.PREFERRED_SIZE, 154, GroupLayout.PREFERRED_SIZE))
 							.addGap(35))))
 		);
 		gl_pnFornecedores.setVerticalGroup(
@@ -461,9 +590,153 @@ public class Tela extends JFrame {
 					.addGroup(gl_pnFornecedores.createParallelGroup(Alignment.BASELINE)
 						.addComponent(tfFornecedorEmail, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lbFornecedorEmail))
-					.addContainerGap(77, Short.MAX_VALUE))
+					.addContainerGap(84, Short.MAX_VALUE))
 		);
 		pnFornecedores.setLayout(gl_pnFornecedores);
+		
+		pnEntradas = new JPanel();
+		pnCentral.add(pnEntradas, Paineis.ENTRADAS.toString());
+		pnEntradas.setLayout(new BorderLayout(0, 0));
+		
+		pnEntradasTitulo = new JPanel();
+		pnEntradas.add(pnEntradasTitulo, BorderLayout.NORTH);
+		
+		lbEntradas = new JLabel("Entradas");
+		lbEntradas.setFont(new Font("Tahoma", Font.PLAIN, 32));
+		
+		lbIncluir = new JLabel("Incluir");
+		lbIncluir.setForeground(Color.BLUE);
+		lbIncluir.setPreferredSize(new Dimension(50, 0));
+		lbIncluir.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				cadastraEntrada();
+			}
+		});
+		lbIncluir.setBorder(null);
+		lbIncluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lbIncluir.setIcon(new ImageIcon(Tela.class.getResource("/images/btAdiciona.png")));
+		
+		lbAlterar = new JLabel("<html><font color=green>Alterar</font></html>");
+		lbAlterar.setFont(new Font("Trebuchet MS", Font.PLAIN, 14));
+		lbAlterar.setIcon(new ImageIcon(Tela.class.getResource("/images/btAltera.png")));
+		lbAlterar.setPreferredSize(new Dimension(50, 0));
+		lbAlterar.setHorizontalAlignment(SwingConstants.CENTER);
+		lbAlterar.setBorder(null);
+		
+		lbExcluir = new JLabel("<html><font color=red>Excluir</font></html>");
+		lbExcluir.setFont(new Font("Trebuchet MS", Font.PLAIN, 14));
+		lbExcluir.setIcon(new ImageIcon(Tela.class.getResource("/images/btExclui.png")));
+		lbExcluir.setPreferredSize(new Dimension(50, 0));
+		lbExcluir.setHorizontalAlignment(SwingConstants.CENTER);
+		lbExcluir.setBorder(null);
+		GroupLayout gl_pnEntradasTitulo = new GroupLayout(pnEntradasTitulo);
+		gl_pnEntradasTitulo.setHorizontalGroup(
+			gl_pnEntradasTitulo.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_pnEntradasTitulo.createSequentialGroup()
+					.addGap(139)
+					.addComponent(lbEntradas, GroupLayout.PREFERRED_SIZE, 133, GroupLayout.PREFERRED_SIZE)
+					.addGap(34)
+					.addComponent(lbIncluir, GroupLayout.PREFERRED_SIZE, 59, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lbAlterar, GroupLayout.PREFERRED_SIZE, 61, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(lbExcluir, GroupLayout.DEFAULT_SIZE, 72, Short.MAX_VALUE)
+					.addContainerGap())
+		);
+		gl_pnEntradasTitulo.setVerticalGroup(
+			gl_pnEntradasTitulo.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_pnEntradasTitulo.createSequentialGroup()
+					.addContainerGap(23, Short.MAX_VALUE)
+					.addGroup(gl_pnEntradasTitulo.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lbIncluir, GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE)
+						.addComponent(lbAlterar, GroupLayout.PREFERRED_SIZE, 18, Short.MAX_VALUE)
+						.addComponent(lbExcluir, GroupLayout.PREFERRED_SIZE, 18, Short.MAX_VALUE))
+					.addGap(15))
+				.addGroup(Alignment.LEADING, gl_pnEntradasTitulo.createSequentialGroup()
+					.addContainerGap(20, Short.MAX_VALUE)
+					.addComponent(lbEntradas))
+		);
+		pnEntradasTitulo.setLayout(gl_pnEntradasTitulo);
+		
+		scEntradas = new JScrollPane();
+		pnEntradas.add(scEntradas, BorderLayout.CENTER);
+		
+		tbEntradas = new JTable();
+		tbEntradas.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column", "New column"
+			}
+		));
+		scEntradas.setViewportView(tbEntradas);
+		
+		pnSaidas = new JPanel();
+		pnCentral.add(pnSaidas, Paineis.SAIDAS.toString());
+		pnSaidas.setLayout(new BorderLayout(0, 0));
+		
+		pnSaidaTitulo = new JPanel();
+		pnSaidas.add(pnSaidaTitulo, BorderLayout.NORTH);
+		
+		lbSaidaTitulo = new JLabel("Saídas");
+		lbSaidaTitulo.setFont(new Font("Tahoma", Font.PLAIN, 32));
+		pnSaidaTitulo.add(lbSaidaTitulo);
+		
+		scSaidas = new JScrollPane();
+		pnSaidas.add(scSaidas, BorderLayout.CENTER);
+		
+		tbSaidas = new JTable();
+		tbSaidas.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+				{null, null, null, null, null, null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column", "New column", "New column"
+			}
+		));
+		scSaidas.setViewportView(tbSaidas);
+		
+		pnKardex = new JPanel();
+		pnCentral.add(pnKardex, "name_247247875326900");
+		pnKardex.setLayout(new BorderLayout(0, 0));
+		
+		pnKardexTitulo = new JPanel();
+		pnKardex.add(pnKardexTitulo, BorderLayout.NORTH);
+		
+		lbKardexTitulo = new JLabel("Ficha de Kardex");
+		pnKardexTitulo.add(lbKardexTitulo);
+		lbKardexTitulo.setFont(new Font("Tahoma", Font.PLAIN, 28));
+		
+		pnKardexTabela = new JScrollPane();
+		pnKardex.add(pnKardexTabela, BorderLayout.CENTER);
+		
+		tbKardex = new JTable();
+		tbKardex.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+				{null, null, null, null, null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column", "New column"
+			}
+		));
+		pnKardexTabela.setViewportView(tbKardex);
 	}
 
 	/*
@@ -479,9 +752,7 @@ public class Tela extends JFrame {
 	}
 	
 	private void listaProduto() {
-		for (Produto p : Produto.getLista()) {
-			System.out.println(p);
-		}
+		new TelaListagem(painel).setVisible(true);
 	}
 
 	private void limpaTelaFornecedor() {
@@ -490,7 +761,7 @@ public class Tela extends JFrame {
 		tfFornecedorNome.setText("");
 		tfFornecedorTelefone.setText("");
 		tfFornecedorEmail.setText("");
-		tfFornecedorID.requestFocus();
+		tfFornecedorCNPJ.requestFocus();
 	}
 	
 	private void limpaTelaProduto() {
@@ -500,27 +771,48 @@ public class Tela extends JFrame {
 		tfProdutoQtdeMaxima.setText("");
 		tfProdutoQtdeMinima.setText("");
 		tfProdutoQtdeEstoque.setText("");
-		tfProdutoID.requestFocus();
+		tfProdutoNome.requestFocus();
 	}
+	
+
 
 	private void gravaFornecedor() {
-		int id = Integer.parseInt(tfFornecedorID.getText());
+		int id = Converte.toInt(tfFornecedorID.getText());
 		String cnpj = tfFornecedorCNPJ.getText();
 		String nome = tfFornecedorNome.getText();
 		String telefone = tfFornecedorTelefone.getText();
 		String email = tfFornecedorEmail.getText();
-		new Fornecedor(id,cnpj,nome,telefone,email);
+		new Fornecedor(cnpj,nome,telefone,email);
 		limpaTelaFornecedor();
 	}
 	
+	private void gravaClientes() {
+		
+		String cpf = tfClientesCPF.getText();
+		String nome = tfClientesNome.getText();
+		String telefone = tfClientesCelular.getText();
+		String email = tfClientesEmail.getText();
+		new Cliente (cpf,nome,telefone,email);
+		limpaTelaClientes();
+	}
+	
+	private void limpaTelaClientes() {
+		tfFornecedorID.setText("");
+		tfClientesCPF.setText("");
+		tfClientesNome.setText("");
+		tfClientesCelular.setText("");
+		tfClientesEmail.setText("");
+		tfClientesCPF.requestFocus();
+	}
+	
 	private void gravaProduto() {
-		int id = Integer.parseInt(tfProdutoID.getText());
+		int id = Converte.toInt(tfProdutoID.getText());
 		String nome = tfProdutoNome.getText();
 		String localizacao = tfProdutoLocalizacao.getText();
 		int qtdeMaxima = Integer.parseInt(tfProdutoQtdeMaxima.getText());
 		int qtdeMinima = Integer.parseInt(tfProdutoQtdeMinima.getText());
 		int qtdeEstoque = Integer.parseInt(tfProdutoQtdeEstoque.getText());
-		new Produto(id, nome, localizacao, qtdeMaxima, qtdeMinima, qtdeEstoque);
+		new Produto(nome, localizacao, qtdeMaxima, qtdeMinima, qtdeEstoque);
 		
 		limpaTelaProduto();
 	}
@@ -529,6 +821,51 @@ public class Tela extends JFrame {
 		CardLayout cl = (CardLayout) pnCentral.getLayout();
 		cl.show(pnCentral,pn.toString());
 		painel = pn;
+		if (painel == Paineis.ENTRADAS) {
+			atualizaTabelaEntradas();
+		}
+		else if (painel == Paineis.SAIDAS)
+			atualizaTabelaSaidas();
+	}
+	
+	private void atualizaTabelaEntradas() {
+		tbEntradas.setModel(Entrada.getTableModel());
+		DefaultTableCellRenderer centro =  new DefaultTableCellRenderer();
+		centro.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		DefaultTableCellRenderer direita =  new DefaultTableCellRenderer();
+		direita.setHorizontalAlignment(SwingConstants.RIGHT);
+		
+		tbEntradas.getTableHeader().setDefaultRenderer(centro);
+		tbEntradas.getColumnModel().getColumn(0).setCellRenderer(centro);
+		tbEntradas.getColumnModel().getColumn(3).setCellRenderer(centro);
+		tbEntradas.getColumnModel().getColumn(5).setCellRenderer(direita);
+		tbEntradas.getColumnModel().getColumn(6).setCellRenderer(direita);
+		
+		
+		tbEntradas.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(50);
+		tbEntradas.getTableHeader().getColumnModel().getColumn(5).setMaxWidth(40);
+		tbEntradas.getTableHeader().getColumnModel().getColumn(6).setMaxWidth(50);
+	}
+	
+	private void atualizaTabelaSaidas() {
+		tbSaidas.setModel(Saida.getTableModel());
+		DefaultTableCellRenderer centro =  new DefaultTableCellRenderer();
+		centro.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		DefaultTableCellRenderer direita =  new DefaultTableCellRenderer();
+		direita.setHorizontalAlignment(SwingConstants.RIGHT);
+		
+		tbSaidas.getTableHeader().setDefaultRenderer(centro);
+		tbSaidas.getColumnModel().getColumn(0).setCellRenderer(centro);
+		tbSaidas.getColumnModel().getColumn(3).setCellRenderer(centro);
+		tbSaidas.getColumnModel().getColumn(5).setCellRenderer(direita);
+		tbSaidas.getColumnModel().getColumn(6).setCellRenderer(direita);
+		
+		
+		tbSaidas.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(50);
+		tbSaidas.getTableHeader().getColumnModel().getColumn(5).setMaxWidth(40);
+		tbSaidas.getTableHeader().getColumnModel().getColumn(6).setMaxWidth(50);
 	}
 	
 	private void setLookAndFeel() {
@@ -548,5 +885,9 @@ public class Tela extends JFrame {
 		}
 		// ajusta Look and Feel Windows como padrão
 		cbTema.setSelectedItem("Windows");
+	}
+	
+	private void cadastraEntrada() {
+		new TelaEntradas().setVisible(true);
 	}
 }

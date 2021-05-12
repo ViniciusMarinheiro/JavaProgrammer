@@ -3,33 +3,29 @@ package model;
 import java.util.ArrayList;
 
 import dao.FornecedorDAO;
-
-/*
- * implementar:
- * 		- atributos private
- * 		- construtor vazio
- * 		- construtor completo
- * 		- getters / setters atributos
- * 		- toString(): id, nome
- * validações:
- * 		- id não pode ser setado manualmente - somente por construtor
- * 		- cnpj deve ser validado (alteração futura)
- * 		- nome não pode ser vazio, brancos e maior que 4 caracteres
- * 		- telefone: deve ser composto de 10 dígitos (11) 1234-5678
- * 		- email: validar formatação do email (alteração futura)
- */
+import util.Verifica;
 
 public class Fornecedor {
-	
+
 	private int id;
 	private String cnpj;
 	private String nome;
 	private String telefone;
 	private String email;
 	private static ArrayList<Fornecedor> fornecedores = new ArrayList<>();
-	
+
 	public Fornecedor() {
 		super();
+	}
+
+	public Fornecedor(String cnpj, String nome, String telefone, String email) {
+		super();
+		setId(0);
+		setCnpj(cnpj);
+		setNome(nome);
+		setTelefone(telefone);
+		setEmail(email);
+		gravar();
 	}
 
 	public Fornecedor(int id, String cnpj, String nome, String telefone, String email) {
@@ -39,18 +35,17 @@ public class Fornecedor {
 		setNome(nome);
 		setTelefone(telefone);
 		setEmail(email);
-		gravar();
 	}
-	
+
 	private void gravar() {
-		//fornecedores.add(this);
-		FornecedorDAO  dao = new FornecedorDAO();
-		dao.insert(this);
-		
+		// fornecedores.add(this);
+		new FornecedorDAO().insert(this);
 	}
-	
+
 	public static ArrayList<Fornecedor> getLista() {
-		return fornecedores;
+		// return fornecedores;
+		FornecedorDAO dao = new FornecedorDAO();
+		return dao.select();
 	}
 
 	public int getId() {
@@ -65,8 +60,19 @@ public class Fornecedor {
 		return cnpj;
 	}
 
+	/**
+	 * Atribui o CNPJ ao fornecedor
+	 * 
+	 * @param cnpj O CNPJ a ser registrado
+	 * @throws IllegalArgumentException Quando o CNPJ � inv�lido
+	 */
+
 	public void setCnpj(String cnpj) {
-		this.cnpj = cnpj;
+		if (Verifica.isCNPJ(cnpj))
+			this.cnpj = cnpj;
+		else {
+			throw new IllegalArgumentException("CNPJ inv�lido.");
+		}
 	}
 
 	public String getNome() {
@@ -75,9 +81,9 @@ public class Fornecedor {
 
 	public void setNome(String nome) {
 		if (nome.isEmpty()) {
-			throw new IllegalArgumentException("Nome não pode ser vazio!");
+			throw new IllegalArgumentException("Nome n�o pode ser vazio!");
 		} else if (nome.isBlank()) {
-			throw new IllegalArgumentException("Nome não pode ser em branco!");
+			throw new IllegalArgumentException("Nome n�o pode ser em branco!");
 		} else if (nome.length() < 5) {
 			throw new IllegalArgumentException("Nome deve ter mais de 4 letras!");
 		} else {
@@ -90,8 +96,8 @@ public class Fornecedor {
 	}
 
 	public void setTelefone(String telefone) {
-		if (telefone.length() != 10) {
-			throw new IllegalArgumentException("Telefone deve ter 10 dígitos!");
+		if ((telefone.length() != 14) && (telefone.length() != 10)) {
+			throw new IllegalArgumentException("Telefone deve ter 10 d�gitos!");
 		}
 		this.telefone = telefone;
 	}
@@ -106,7 +112,7 @@ public class Fornecedor {
 
 	@Override
 	public String toString() {
-		return "Fornecedor [id=" + id + ", nome=" + nome + "]";
+		return "Fornecedor [id=" + id + ", nome=" + nome + ", cnpj=" + getCnpj() + "]";
 	}
-		
+
 }
